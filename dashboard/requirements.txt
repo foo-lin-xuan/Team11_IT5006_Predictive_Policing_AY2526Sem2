@@ -2,4 +2,4 @@ numpy
 pandas
 plotly
 pydeck
-streamlit
+streamlit>=1.20.0
