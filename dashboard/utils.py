@@ -31,7 +31,7 @@ def load_local_data_for_evolution_chart(file_path):
 
 @st.cache_data
 def load_data(BASE_URL):
-    START = "2016-01-01T00:00:00"
+    START = "2014-01-01T00:00:00"
     END  = "2025-12-31T23:59:59"
 
     LIMIT = 50000

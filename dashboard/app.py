@@ -11,9 +11,9 @@ import utils
 
 
 # Change these to load data from local file for faster speed
-LOAD_LOCAL_DATA = False 
-LOCAL_DATA_2016_2025_FILEPATH = "../data/chicago_crime_2016_2025_raw.csv"
-LOCAL_DATA_2001_2024_FILEPATH = "../data/chicago_crime_2001_2024.csv"
+LOAD_LOCAL_DATA = True 
+LOCAL_DATA_2014_2025_FILEPATH = "./data/chicago_crime_2014_2025_raw.csv"
+LOCAL_DATA_2001_2024_FILEPATH = "./data/chicago_crime_2001_2024.csv"
 
 BASE_URL = "https://data.cityofchicago.org/resource/ijzp-q8t2.csv"
  
@@ -23,7 +23,7 @@ st.title("Chicago Crime Data Analysis Dashboard")
 # Loading Data
 data_load_state = st.text('Loading large amount of data... This may take a while, please wait...')
 if LOAD_LOCAL_DATA:
-    df = utils.load_local_data(LOCAL_DATA_2016_2025_FILEPATH)
+    df = utils.load_local_data(LOCAL_DATA_2014_2025_FILEPATH)
 else:
     df = utils.load_data(BASE_URL)
 data_load_state.text('Loading data...done!')
