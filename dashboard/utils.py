@@ -30,7 +30,7 @@ def load_local_data_for_evolution_chart(file_path):
         return None
 
 @st.cache_data
-def load_data():
+def load_data(BASE_URL):
     START = "2016-01-01T00:00:00"
     END  = "2025-12-31T23:59:59"
 
@@ -82,7 +82,7 @@ def load_data():
     return df
 
 @st.cache_data
-def load_data_for_evolution_chart():
+def load_data_for_evolution_chart(BASE_URL):
     chunks = []
        
     SELECT_COLS = "date,year,latitude,longitude"

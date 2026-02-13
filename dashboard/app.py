@@ -11,7 +11,7 @@ import utils
 
 
 # Change these to load data from local file for faster speed
-LOAD_LOCAL_DATA = True 
+LOAD_LOCAL_DATA = False 
 LOCAL_DATA_2016_2025_FILEPATH = "../data/chicago_crime_2016_2025_raw.csv"
 LOCAL_DATA_2001_2024_FILEPATH = "../data/chicago_crime_2001_2024.csv"
 
@@ -25,7 +25,7 @@ data_load_state = st.text('Loading large amount of data... This may take a while
 if LOAD_LOCAL_DATA:
     df = utils.load_local_data(LOCAL_DATA_2016_2025_FILEPATH)
 else:
-    df = utils.load_data()
+    df = utils.load_data(BASE_URL)
 data_load_state.text('Loading data...done!')
 
 # Data Preprocessing
@@ -50,7 +50,7 @@ data_load_state = st.text('Loading large amount of data... This may take a while
 if LOAD_LOCAL_DATA:
     df_hist = utils.load_local_data_for_evolution_chart(LOCAL_DATA_2001_2024_FILEPATH)
 else:
-    df_hist = utils.load_data_for_evolution_chart()
+    df_hist = utils.load_data_for_evolution_chart(BASE_URL)
 data_load_state.text('Loading data...done!')
 
 col1, col2 = st.columns(2)
