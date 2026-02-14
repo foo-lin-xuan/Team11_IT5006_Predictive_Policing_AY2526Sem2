@@ -7,23 +7,18 @@ from urllib.parse import urlencode
 import plotly.graph_objects as go
 import pydeck as pdk
 
+from constants import *
 from data import *
 from charts import *
 
-# Change these to load data from local file
-LOAD_LOCAL_DATA = False 
-LOCAL_DATA_2014_2025_FILEPATH = "./data/chicago_crime_2014_2025_raw.csv"
-LOCAL_DATA_2001_2024_FILEPATH = "./data/chicago_crime_2001_2024.csv"
-
-BASE_URL = "https://data.cityofchicago.org/resource/ijzp-q8t2.csv"
- 
 
 st.title("Chicago Crime Data Analysis Dashboard")
 
 # Load Data
 data_load_state = st.text('Loading large amount of data... This may take a while, please wait...')
 if LOAD_LOCAL_DATA:
-    df = load_local_data(LOCAL_DATA_2014_2025_FILEPATH)
+    # df = load_local_data(LOCAL_DATA_2014_2025_FILEPATH)
+    df = load_local_data(LOCAL_DATA_2016_2025_FILEPATH)
 else:
     df = load_data(BASE_URL)
 data_load_state.text('Loading data...done!')
@@ -56,7 +51,7 @@ df_geo = df.dropna(subset=["latitude", "longitude"])
 df_sample = df_geo.sample(n=100000, random_state=42)
 
 # Charts (Spatial Patterns)
-st.markdown("**Crimes Spatial Distribution (2014 - 2025)**")
+st.markdown(f"**Crimes Spatial Distribution ({START_YEAR} - 2025)**")
 chart_heatmap(df_sample[["latitude", "longitude"]])
 
 

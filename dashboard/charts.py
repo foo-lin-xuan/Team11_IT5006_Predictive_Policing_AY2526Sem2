@@ -7,6 +7,8 @@ from urllib.parse import urlencode
 import plotly.graph_objects as go
 import pydeck as pdk
 
+from constants import *
+
 def chart_yearly_trend(crimes_by_year):
     fig = go.Figure()
 
@@ -20,7 +22,7 @@ def chart_yearly_trend(crimes_by_year):
     ))
 
     fig.update_layout(
-        title="Number of Crimes by Year (2014 - 2025)",
+        title=f"Number of Crimes by Year ({START_YEAR} - 2025)",
         xaxis_title="Year",
         yaxis_title="Number of Crimes",
         template="plotly_white",
@@ -42,7 +44,7 @@ def chart_hourly_trend(crimes_by_hour):
     ))
 
     fig.update_layout(
-        title="Number of Crimes by Hour of Day (2014 - 2025)",
+        title=f"Number of Crimes by Hour of Day ({START_YEAR} - 2025)",
         xaxis_title="Hour of Day",
         yaxis_title="Number of Crimes"
     )
@@ -64,7 +66,7 @@ def chart_weekly_trend(crimes_by_weekday):
     ))
 
     fig.update_layout(
-        title="Number of Crimes by Weekday (2014 - 2025)",
+        title=f"Number of Crimes by Weekday ({START_YEAR} - 2025)",
         xaxis_title="Weekday",
         yaxis_title="Number of Crimes",
         xaxis=dict(tickangle=45),
@@ -153,7 +155,7 @@ def chart_top_districts(district_counts):
     )
 
     fig.update_layout(
-        title="Top 10 High-Crime Districts by Community Area (2014 – 2025)",
+        title=f"Top 10 High-Crime Districts by Community Area ({START_YEAR} – 2025)",
         xaxis=dict(
             title="Total Reported Incidents",
             tickformat=",",
