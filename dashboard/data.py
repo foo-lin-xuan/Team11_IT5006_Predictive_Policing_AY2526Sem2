@@ -7,6 +7,8 @@ from urllib.parse import urlencode
 import plotly.graph_objects as go
 import pydeck as pdk
 
+from constants import *
+
 @st.cache_data
 def load_local_data(file_path):
     # Ensure the path is correct
@@ -31,12 +33,6 @@ def load_local_data_for_evolution_chart(file_path):
 
 @st.cache_data
 def load_data(BASE_URL):
-    START = "2014-01-01T00:00:00"
-    END  = "2025-12-31T23:59:59"
-
-    LIMIT = 50000
-    SLEEP_SEC = 0.3
-    MAX_PAGES = 1000
 
     SELECT_COLS = ",".join([
         "id", "case_number", "date",
@@ -109,7 +105,7 @@ def load_data_for_evolution_chart(BASE_URL):
     return df
 
 @st.cache_data
-def prepare_top_districts(df, start_year=2014, end_year=2025, top_n=10):
+def prepare_top_districts(df, start_year=START_YEAR, end_year=2025, top_n=10):
   
     DISTRICT_MAP = {
         1.0: '1: Central (Downtown)',
