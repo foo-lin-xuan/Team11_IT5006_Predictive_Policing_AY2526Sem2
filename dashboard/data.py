@@ -31,7 +31,7 @@ def load_local_data_for_evolution_chart(file_path):
         st.error(f"File not found: {file_path}")
         return None
 
-@st.cache_data
+@st.cache_data(persist=True)
 def load_data(BASE_URL):
 
     SELECT_COLS = ",".join([
@@ -77,7 +77,7 @@ def load_data(BASE_URL):
     print("Final shape:", df.shape)
     return df
 
-@st.cache_data
+@st.cache_data(persist=True)
 def load_data_for_evolution_chart(BASE_URL):
     chunks = []
        
@@ -135,7 +135,7 @@ def prepare_top_districts(df, start_year=START_YEAR, end_year=2025, top_n=10):
     df_dist = df[
         (df['date'].dt.year >= start_year) &
         (df['date'].dt.year <= end_year)
-    ].copy()
+    ]
 
     df_dist['district'] = pd.to_numeric(df_dist['district'], errors='coerce')
 
