@@ -101,10 +101,11 @@ Recommended Python packages:
 - tensorflow
 - shap
 - scipy
+See requirements.txt
 
 ## How to Run
 1. Open the notebook in Jupyter Notebook or JupyterLab.
-2. Install the required dependencies.
+2. Install the required dependencies. Via `pip install -r requirements.txt`
 3. Make sure the Chicago crime dataset is available locally or update the data-loading path in the notebook.
 4. Run the notebook from top to bottom.
 
