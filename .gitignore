@@ -1,2 +1,9 @@
 dashboard/data
 dashboard/__pycache__
+deployment/data
+notebooks/data
+deployment/api/draft.py
+deployment/ui/draft.py
+deployment/__pycache__
+deployment/api/main.py.ref
+deployment/api/__pycache__
