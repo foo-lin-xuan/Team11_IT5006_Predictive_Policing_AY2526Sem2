@@ -115,7 +115,7 @@ class CrimePredictionInput(BaseModel):
 
 class PredictionResponse(BaseModel):
     """Prediction response with individual and ensemble results."""
-    transaction_id: str
+    request_id: str
     timestamp: str
     
     # Individual model predictions
@@ -211,7 +211,7 @@ def predict(payload: CrimePredictionInput):
     """
     global request_counter
     request_counter += 1
-    request_id = f"txn_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{request_counter:06d}"
+    request_id = f"req_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{request_counter:06d}"
     
     try:
         # Validate primary_type
@@ -274,7 +274,7 @@ def predict(payload: CrimePredictionInput):
         logger.info(f"[{request_id}] Prediction: {verdict} (prob={ensemble_prob:.3f})")
         
         return PredictionResponse(
-            transaction_id=request_id,
+            request_id=request_id,
             timestamp=datetime.utcnow().isoformat(),
             logistic_regression_prediction=lr_pred,
             logistic_regression_probability=round(lr_prob, 4),
