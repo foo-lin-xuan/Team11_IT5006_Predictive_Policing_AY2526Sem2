@@ -1,3 +1,12 @@
+---
+title: Crime Risk Prediction
+emoji: ⚖️
+colorFrom: blue
+colorTo: red
+sdk: docker
+app_port: 7860
+---
+
 # IT5006 Project Milestone 2: Analytics Implementation - Model Building & Evaluation
 
 ## Group
