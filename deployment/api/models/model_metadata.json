@@ -1,0 +1,83 @@
+{
+  "features": [
+    "date",
+    "primary_type",
+    "latitude",
+    "longitude",
+    "d1_count",
+    "d7_count",
+    "d7_avg",
+    "d7_std",
+    "arrest_count",
+    "domestic_count",
+    "d30_avg",
+    "d30_std"
+  ],
+  "primary_type_classes": [
+    "OFFENSE INVOLVING CHILDREN",
+    "OTHER OFFENSE",
+    "MOTOR VEHICLE THEFT",
+    "CRIMINAL DAMAGE",
+    "CRIMINAL SEXUAL ASSAULT",
+    "DECEPTIVE PRACTICE",
+    "THEFT",
+    "BATTERY",
+    "SEX OFFENSE",
+    "ASSAULT",
+    "CRIM SEXUAL ASSAULT",
+    "BURGLARY",
+    "WEAPONS VIOLATION",
+    "CRIMINAL TRESPASS",
+    "NARCOTICS",
+    "ROBBERY",
+    "LIQUOR LAW VIOLATION",
+    "HOMICIDE",
+    "PUBLIC PEACE VIOLATION",
+    "INTERFERENCE WITH PUBLIC OFFICER",
+    "STALKING",
+    "INTIMIDATION",
+    "ARSON",
+    "HUMAN TRAFFICKING",
+    "GAMBLING",
+    "KIDNAPPING",
+    "PROSTITUTION",
+    "OBSCENITY",
+    "CONCEALED CARRY LICENSE VIOLATION",
+    "NON-CRIMINAL",
+    "PUBLIC INDECENCY",
+    "OTHER NARCOTIC VIOLATION",
+    "RITUALISM"
+  ],
+  "metrics": {
+    "logistic_regression": {
+      "accuracy": 0.6989275558386803,
+      "precision": 0.3714876649027353,
+      "recall": 0.6220592823712948,
+      "f1": 0.46517650901794255,
+      "roc_auc": 0.7361222612206463
+    },
+    "random_forest": {
+      "accuracy": 0.9245677058363817,
+      "precision": 0.9738248847926267,
+      "recall": 0.6593447737909517,
+      "f1": 0.786306976744186,
+      "roc_auc": 0.9348816263932468
+    },
+    "xgboost": {
+      "accuracy": 0.9620802658453133,
+      "precision": 0.9954370616185233,
+      "recall": 0.823619344773791,
+      "f1": 0.9014137412921732,
+      "roc_auc": 0.9470891045059614
+    },
+    "ensemble": {
+      "accuracy": 0.9618241401729833,
+      "precision": 0.9944593117485206,
+      "recall": 0.823213728549142,
+      "f1": 0.9007698741912907,
+      "roc_auc": 0.9458155005959679
+    }
+  },
+  "training_samples": 85000,
+  "test_samples": 152269
+}

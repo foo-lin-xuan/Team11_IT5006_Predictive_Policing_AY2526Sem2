@@ -7,3 +7,4 @@ deployment/ui/draft.py
 deployment/__pycache__
 deployment/api/main.py.ref
 deployment/api/__pycache__
+deployment/api/logs
