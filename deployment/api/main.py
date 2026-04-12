@@ -86,11 +86,11 @@ class CrimePredictionInput(BaseModel):
     latitude: float              
     longitude: float              
     d1_count: int = 15                      # Previous day crime count
-    d7_count: int = 15                      # Past 7-day crime count
+    d7_count: int = 15                      # 7 days prior crime count
     d7_avg: float = 14.50                   # Past 7-day crime count avg
     d7_std: float = 3.84                    # Past 7-day crime count std dev
-    arrest_count: float = 14.26             # Past 7-day arrest count
-    domestic_count: float = 17.96           # Past 7-day domestic-related count
+    arrest_count: float = 14.26             # Past 7-day total arrest count
+    domestic_count: float = 17.96           # Past 7-day total domestic-related crime count
     d30_avg: float = 14.55                  # Past 30-day crime count avg
     d30_std: float = 4.09                   # Past 30-day crime count std dev
     
