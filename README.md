@@ -46,8 +46,11 @@ project-root
 ## Web Service Deployment
 
 Deploy FastAPI service on [Hugging Face Spaces](https://huggingface.co/):
+<!-- 
+Note to include:
 - Dockerfile
-- YAML header in README.md
+- YAML header in README.md 
+-->
 
 API URL: [https://foo-lin-xuan-crime-risk-prediction.hf.space/docs](https://foo-lin-xuan-crime-risk-prediction.hf.space/docs)
 
