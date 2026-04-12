@@ -129,7 +129,9 @@ class PredictionResponse(BaseModel):
     # Ensemble prediction
     ensemble_prediction: int
     ensemble_probability: float
-    ensemble_verdict: str
+    
+    # Verdict
+    verdict: str
     
 # ============================================================
 # HELPER FUNCTIONS
@@ -240,21 +242,23 @@ def predict(payload: CrimePredictionInput):
         X = fe.transform(X)
 
         # Get predictions 
+        lr_pred = int(lr_pipeline.predict(X)[0])
         lr_prob = float(lr_pipeline.predict_proba(X)[0, 1])
-        lr_pred = int(lr_prob >= 0.5)
         
+        rf_pred = int(rf_pipeline.predict(X)[0])
         rf_prob = float(rf_pipeline.predict_proba(X)[0, 1])
-        rf_pred = int(rf_prob >= 0.5)
 
+        xgb_pred = int(xgb_pipeline.predict(X)[0])
         xgb_prob = float(xgb_pipeline.predict_proba(X)[0, 1])
-        xgb_pred = int(xgb_prob >= 0.5)
         
-        # Ensemble (soft voting)
-        ensemble_prob = (lr_prob + rf_prob + xgb_prob) / 3
+        # Ensemble (soft voting) of Random Forest + XGBoost
+        rf_weight = metadata.get("metrics", {}).get("random_forest", {}).get("f1", 1.0)
+        xgb_weight = metadata.get("metrics", {}).get("xgboost", {}).get("f1", 1.0)
+        ensemble_prob = (rf_weight * rf_prob + xgb_weight * xgb_prob) / (rf_weight + xgb_weight)
         ensemble_pred = int(ensemble_prob >= 0.5)
         
         # Determine verdict
-        if ensemble_prob >= 0.5:
+        if xgb_pred == 1:
             verdict = "HIGH CRIME"
         else:
             verdict = "LOW CRIME"
@@ -284,8 +288,7 @@ def predict(payload: CrimePredictionInput):
             xgboost_probability=round(xgb_prob, 4),
             ensemble_prediction=ensemble_pred,
             ensemble_probability=round(ensemble_prob, 4),
-            ensemble_verdict=verdict
-            # drift_warnings=drift_warnings
+            verdict=verdict
         )
         
     except Exception as e:
