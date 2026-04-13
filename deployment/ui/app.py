@@ -85,7 +85,7 @@ with tab1:
             value=st.session_state.lat, 
             format="%.6f", 
             key="lat_box", 
-            on_change=update_from_boxes
+            on_change="lat"
         )
         
         st.number_input(
@@ -93,7 +93,7 @@ with tab1:
             value=st.session_state.lng, 
             format="%.6f", 
             key="lng_box", 
-            on_change=update_from_boxes
+            on_change="lng"
         )
         
         st.info("Click the map to update coordinates, or type them in manually.")
@@ -105,8 +105,8 @@ with tab1:
         # --- SECTION 2: PREDICTION TARGET DETAILS ---
         st.subheader("🎯 Details")
         
-        date_input = st.date_input("Target Date to Predict", value=datetime.now())
-        time_input = st.time_input("Target Time to Predict", value=datetime.now().time())
+        date_input = st.date_input("Target Date to Predict", value=datetime.now(), key="pred_date")
+        time_input = st.time_input("Target Time to Predict", value=datetime.now().time(), key="pred_time")
         primary_type = st.selectbox("Primary Type", PRIMARY_TYPE_CLASSES)
         
         st.divider()
@@ -170,6 +170,7 @@ with tab1:
                 enriched_result = result.copy()
                 enriched_result["lat"] = st.session_state.lat
                 enriched_result["lng"] = st.session_state.lng
+                enriched_result["date"] = dt_combined
                 enriched_result["primary_type"] = primary_type
                 enriched_result["raw_response"] = result
 
@@ -226,18 +227,56 @@ with tab1:
         # Create a map centered on the selected location
         m_result = folium.Map(location=[st.session_state.lat, st.session_state.lng], zoom_start=13)
         
-        for point in st.session_state.api_results:
-            color = "red" if point['xgboost_prediction'] == 1 else "green"
-            icon = "exclamation-triangle" if point['xgboost_prediction'] == 1 else "check"
+        # for point in st.session_state.api_results:
+        color = "red" if result['xgboost_prediction'] == 1 else "green"
+        icon = "exclamation-triangle" if result['xgboost_prediction'] == 1 else "check"
 
-            folium.Marker(
-                [point['lat'], point['lng']],
-                popup=f"<b>{point['primary_type']}</b><br>Risk: {point['xgboost_probability']:.1%}",
-                icon=folium.Icon(color=color, icon=icon, prefix='fa')
-            ).add_to(m_result)
+        folium.Marker(
+            [result['lat'], result['lng']],
+            popup=f"<b>{result['primary_type']}</b><br>Risk: {result['xgboost_probability']:.1%}",
+            icon=folium.Icon(color=color, icon=icon, prefix='fa')
+        ).add_to(m_result)
 
         # Render the Result Map
         st_folium(m_result, height=300, width="stretch", key="result_map")
+
+        st.divider()
+        st.subheader("📜 Prediction History")
+
+        if st.session_state.api_results:
+            # 1. Convert to DataFrame
+            df = pd.DataFrame(st.session_state.api_results)
+
+            # 2. Create the Strategic View
+            history_view = pd.DataFrame({
+                "Time": pd.to_datetime(df["date"]).dt.strftime('%b %d, %H:%M'),
+                "Location": df.apply(lambda x: f"{x['lat']:.4f}, {x['lng']:.4f}", axis=1),
+                "Type": df["primary_type"],
+                "Risk Score": df["xgboost_probability"].apply(lambda x: f"{x:.1%}"),
+                "Verdict": df["verdict"]
+            })
+
+            # 3. Add a Priority Column for Actionability
+            def get_priority(prob):
+                if prob > 0.75: return "🔴 HIGH"
+                if prob > 0.50: return "🟡 MED"
+                return "🟢 LOW"
+            
+            history_view["Priority"] = df["xgboost_probability"].apply(get_priority)
+
+            # 4. Display (Newest first)
+            st.dataframe(
+                history_view.iloc[::-1], 
+                width="stretch",
+                hide_index=True
+            )
+            
+            # Optional: Add a button to clear history
+            if st.button("Clear History"):
+                st.session_state.api_results = []
+                st.rerun()
+        else:
+            st.info("No predictions generated yet.")
 
         st.divider()
 
