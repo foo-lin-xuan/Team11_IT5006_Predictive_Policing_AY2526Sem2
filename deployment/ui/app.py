@@ -2,16 +2,9 @@ import streamlit as st
 import requests
 from datetime import datetime
 import pandas as pd
-
-# --- Page Config ---
-st.set_page_config(
-    page_title="Crime Risk Prediction", 
-    layout="centered",
-    initial_sidebar_state="collapsed"
-    )
-
-st.title("🚨 Crime Risk Prediction Dashboard")
-st.markdown("Enter the target details and historical context to forecast crime risk.")
+import folium
+from streamlit_folium import st_folium
+from folium.plugins import Geocoder
 
 API_URL = "https://foo-lin-xuan-crime-risk-prediction.hf.space"
 
@@ -28,28 +21,97 @@ PRIMARY_TYPE_CLASSES = [
 ]
 PRIMARY_TYPE_CLASSES.sort()
 
+# --- Page Config ---
+st.set_page_config(
+    page_title="Crime Risk Prediction", 
+    layout="centered",
+    initial_sidebar_state="collapsed"
+    )
+
+# --- Initialize Session State for Coordinates ---
+# This ensures both the map and the number boxes stay in sync
+if "lat" not in st.session_state:
+    st.session_state.lat = 41.8781
+if "lng" not in st.session_state:
+    st.session_state.lng = -87.6298
+if "api_results" not in st.session_state:
+    st.session_state.api_results = []
+
+st.title("🚨 Crime Risk Prediction Dashboard")
+st.markdown("Enter the target details and historical context to forecast crime risk.")
+
 tab1, tab2 = st.tabs(["🔍 Prediction Dashboard", "📏 Model Performance"])
 
 with tab1:
+    # --- SECTION 1: LOCATION SELECTION ---
+    st.subheader("📍 Location")
+    col_map, col_inputs = st.columns([2, 1])
+
+    with col_map:
+        # Create map centered on the current state
+        m = folium.Map(location=[st.session_state.lat, st.session_state.lng], zoom_start=13)
+        Geocoder(add_marker=True).add_to(m)
+        m.add_child(folium.LatLngPopup())
+        
+        # Render map
+        map_data = st_folium(m, height=400, width="stretch", key="chicago_map")
+
+        # --- THE SYNC LOGIC ---
+        # Check if the map was clicked
+        if map_data.get("last_clicked"):
+            new_lat = map_data["last_clicked"]["lat"]
+            new_lng = map_data["last_clicked"]["lng"]
+            
+            # Only update if the values are different to prevent infinite rerun loops
+            if new_lat != st.session_state.lat or new_lng != st.session_state.lng:
+                st.session_state.lat = new_lat
+                st.session_state.lng = new_lng
+                # IMPORTANT: Manually update the number_input keys so they refresh
+                st.session_state.lat_box = new_lat
+                st.session_state.lng_box = new_lng
+                st.rerun()
+
+    with col_inputs:
+        st.write("**Coordinates**")
+        
+        # Define functions to handle manual typing updates
+        def update_from_boxes():
+            st.session_state.lat = st.session_state.lat_box
+            st.session_state.lng = st.session_state.lng_box
+
+        # Number inputs tied to the 'lat_box' and 'lng_box' session state keys
+        st.number_input(
+            "Latitude", 
+            value=st.session_state.lat, 
+            format="%.6f", 
+            key="lat_box", 
+            on_change=update_from_boxes
+        )
+        
+        st.number_input(
+            "Longitude", 
+            value=st.session_state.lng, 
+            format="%.6f", 
+            key="lng_box", 
+            on_change=update_from_boxes
+        )
+        
+        st.info("Click the map to update coordinates, or type them in manually.")
+    
+    
     # --- Input Form ---
     with st.form("prediction_form"):
         
-        # --- SECTION 1: PREDICTION TARGET ---
-        st.subheader("🎯 Prediction Target")
-        col1, col2 = st.columns(2)
+        # --- SECTION 2: PREDICTION TARGET DETAILS ---
+        st.subheader("🎯 Details")
         
-        with col1:
-            date_input = st.date_input("Target Date to Predict", value=datetime.now())
-            time_input = st.time_input("Target Time to Predict", value=datetime.now().time())
-            primary_type = st.selectbox("Primary Type", PRIMARY_TYPE_CLASSES)
+        date_input = st.date_input("Target Date to Predict", value=datetime.now())
+        time_input = st.time_input("Target Time to Predict", value=datetime.now().time())
+        primary_type = st.selectbox("Primary Type", PRIMARY_TYPE_CLASSES)
         
-        with col2:
-            latitude = st.number_input("Latitude", value=41.8781, format="%.6f")
-            longitude = st.number_input("Longitude", value=-87.6298, format="%.6f")
-
         st.divider()
 
-        # --- SECTION 2: HISTORICAL CONTEXT & STATS ---
+        # --- SECTION 3: HISTORICAL CONTEXT & STATS ---
         st.subheader("📊 Historical Data & Statistics")
         
         # Row 1: 
@@ -78,7 +140,7 @@ with tab1:
         with col8:
             d30_std = st.number_input("30-Day Crimes (Std Dev)", value=4.09)
 
-        submit_button = st.form_submit_button(label="Generate Risk Forecast", use_container_width=True)
+        submit_button = st.form_submit_button(label="Generate Risk Forecast", width="stretch")
 
     # --- API Integration ---
     if submit_button:
@@ -87,8 +149,8 @@ with tab1:
         payload = {
             "date": dt_combined,
             "primary_type": primary_type,
-            "latitude": latitude,
-            "longitude": longitude,
+            "latitude": st.session_state.lat,
+            "longitude": st.session_state.lng,
             "d1_count": d1_count,
             "d7_count": d7_count,
             "d7_avg": d7_avg,
@@ -104,58 +166,87 @@ with tab1:
                 response = requests.post(API_URL + "/predict", json=payload)
                 response.raise_for_status()
                 result = response.json()
+
+                enriched_result = result.copy()
+                enriched_result["lat"] = st.session_state.lat
+                enriched_result["lng"] = st.session_state.lng
+                enriched_result["primary_type"] = primary_type
+                enriched_result["raw_response"] = result
+
+                st.session_state.api_results.append(enriched_result)
                 
                 st.success("Analysis Complete")
                 
-                # 1. MODEL PREDICTIONS IN COLUMNS
-                st.write("#### Model Probabilities")
-                m1, m2, m3, m4 = st.columns(4)
-                
-                models = [
-                    ("Logistic Regression", 'logistic_regression'),
-                    ("Random Forest", 'random_forest'),
-                    ("XGBoost (Final)", 'xgboost'),
-                    ("Ensemble (RF + XGB)", 'ensemble')
-                ]
-
-                cols = [m1, m2, m3, m4]
-
-                for col, (label, key) in zip(cols, models):
-                    with col:
-                        prob = result[f'{key}_probability']
-                        pred = result[f'{key}_prediction']
-                        
-                        # Logic for Delta: 
-                        # Down Arrow, Green Color for 0 (Low), 
-                        # Up Arrow, Red Color for 1 (High)
-                        delta_val = "High Crime" if pred == 1 else "Low Crime"
-                        
-                        st.metric(
-                            label=label, 
-                            value=f"{prob:.2%}", 
-                            delta=delta_val,
-                            delta_arrow=f"{'up' if pred == 1 else 'down'}",
-                            delta_color=f"{'red' if pred == 1 else 'green'}"
-                        )
-
-                st.divider()
-
-                # 2. THE VERDICT
-                verdict = result.get("verdict", "N/A")
-                st.markdown(f"### Final Verdict: **{verdict}**")
-                st.progress(result['xgboost_probability'])
-                st.caption(f"Crime Risk: {result['xgboost_probability']:.2%}")
-
-                st.divider()
-
-                # 3. JSON IN A HIDDEN DRAWER
-                with st.expander("🔍 View Raw API Response (JSON)"):
-                    st.json(result)
-                    st.write(f"**Request ID:** {result.get('request_id')}")
-                    st.write(f"**Processed at:** {result.get('timestamp')}")
-                
             except requests.exceptions.RequestException as e:
                 st.error(f"Connection Error: {e}")
+    
+    if st.session_state.api_results:
+        result = st.session_state.api_results[-1]
+
+        # 1. MODEL PREDICTIONS IN COLUMNS
+        st.write("#### Model Probabilities")
+        m1, m2, m3, m4 = st.columns(4)
+        
+        models = [
+            ("Logistic Regression", 'logistic_regression'),
+            ("Random Forest", 'random_forest'),
+            ("XGBoost (Final)", 'xgboost'),
+            ("Ensemble (RF + XGB)", 'ensemble')
+        ]
+
+        cols = [m1, m2, m3, m4]
+
+        for col, (label, key) in zip(cols, models):
+            with col:
+                prob = result[f'{key}_probability']
+                pred = result[f'{key}_prediction']
+                
+                # Logic for Delta: 
+                # Down Arrow, Green Color for 0 (Low), 
+                # Up Arrow, Red Color for 1 (High)
+                delta_val = "High Crime" if pred == 1 else "Low Crime"
+                
+                st.metric(
+                    label=label, 
+                    value=f"{prob:.2%}", 
+                    delta=delta_val,
+                    delta_arrow=f"{'up' if pred == 1 else 'down'}",
+                    delta_color=f"{'red' if pred == 1 else 'green'}"
+                )
+
+        st.divider()
+
+        # 2. THE VERDICT
+        verdict = result.get("verdict", "N/A")
+        st.markdown(f"### Final Verdict: **{verdict}**")
+        st.progress(result['xgboost_probability'])
+        st.caption(f"Crime Risk: {result['xgboost_probability']:.2%}")
+
+        # --- THE RESULT MAP ---
+        # Create a map centered on the selected location
+        m_result = folium.Map(location=[st.session_state.lat, st.session_state.lng], zoom_start=13)
+        
+        for point in st.session_state.api_results:
+            color = "red" if point['xgboost_prediction'] == 1 else "green"
+            icon = "exclamation-triangle" if point['xgboost_prediction'] == 1 else "check"
+
+            folium.Marker(
+                [point['lat'], point['lng']],
+                popup=f"<b>{point['primary_type']}</b><br>Risk: {point['xgboost_probability']:.1%}",
+                icon=folium.Icon(color=color, icon=icon, prefix='fa')
+            ).add_to(m_result)
+
+        # Render the Result Map
+        st_folium(m_result, height=300, width="stretch", key="result_map")
+
+        st.divider()
+
+        # 3. JSON IN A HIDDEN DRAWER
+        with st.expander("🔍 View Raw API Response (JSON)"):
+            st.json(result["raw_response"])
+            st.write(f"**Request ID:** {result.get('request_id')}")
+            st.write(f"**Processed at:** {result.get('timestamp')}")
+        
 
 @st.cache_data
 def get_model_info():
@@ -182,7 +273,7 @@ with tab2:
         st.subheader("Comparison Table")
         st.dataframe(
             df_metrics.style.highlight_max(axis=0, color='lightgreen'),
-            use_container_width=True
+            width="stretch"
         )
 
         # Highlight the Winner
