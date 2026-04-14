@@ -50,8 +50,15 @@ with tab1:
     with col_map:
         # Create map centered on the current state
         m = folium.Map(location=[st.session_state.lat, st.session_state.lng], zoom_start=13)
+
+        folium.Marker(
+            [st.session_state.lat, st.session_state.lng],
+            tooltip=f"Lat: {st.session_state.lat:.4f}, Lng: {st.session_state.lng:.4f}",
+            icon=folium.Icon(color="red", icon="info-sign")
+        ).add_to(m)
+
         Geocoder(add_marker=True).add_to(m)
-        m.add_child(folium.LatLngPopup())
+        # m.add_child(folium.LatLngPopup())
         
         # Render map
         map_data = st_folium(m, height=400, width="stretch", key="chicago_map")
@@ -83,19 +90,25 @@ with tab1:
         st.number_input(
             "Latitude", 
             value=st.session_state.lat, 
-            format="%.6f", 
+            format="%.6f",
+            step=0.1, 
             key="lat_box", 
-            on_change="lat"
         )
         
         st.number_input(
             "Longitude", 
             value=st.session_state.lng, 
-            format="%.6f", 
+            format="%.6f",
+            step=0.1, 
             key="lng_box", 
-            on_change="lng"
         )
         
+        # Sync logic: Update the master lat/lng if the boxes changed
+        if st.session_state.lat_box != st.session_state.lat or st.session_state.lng_box != st.session_state.lng:
+            st.session_state.lat = st.session_state.lat_box
+            st.session_state.lng = st.session_state.lng_box
+            st.rerun()
+
         st.info("Click the map to update coordinates, or type them in manually.")
     
     
@@ -171,7 +184,8 @@ with tab1:
                 def get_priority(prob):
                     # Adjusted based on XGBoost probabilities distribution.
                     # 75th percentile: 0.15360009670257568, 90th percentile: 0.9952225685119629
-                    if prob > 0.90: return "🔴 HIGH"
+                    if prob > 0.90: return "❗ CRITICAL"
+                    if prob > 0.50: return "🔴 HIGH"
                     if prob > 0.20: return "🟡 MED"
                     return "🟢 LOW"
                 
@@ -233,7 +247,7 @@ with tab1:
 
         # --- THE RESULT MAP ---
         # Create a map centered on the selected location
-        m_result = folium.Map(location=[st.session_state.lat, st.session_state.lng], zoom_start=13)
+        m_result = folium.Map(location=[st.session_state.lat, st.session_state.lng], zoom_start=14)
         
         # for point in st.session_state.api_results:
         color = "red" if result['xgboost_prediction'] == 1 else "green"

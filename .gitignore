@@ -8,3 +8,4 @@ deployment/__pycache__
 deployment/api/main.py.ref
 deployment/api/__pycache__
 deployment/api/logs
+deployment/test_files
