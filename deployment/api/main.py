@@ -276,7 +276,7 @@ def predict(payload: CrimePredictionInput):
             }
         )
         
-        logger.info(f"[{request_id}] Prediction: {verdict} (prob={ensemble_prob:.3f})")
+        logger.info(f"[{request_id}] Prediction: {verdict} (prob={xgb_prob:.3f})")
         
         return PredictionResponse(
             request_id=request_id,
