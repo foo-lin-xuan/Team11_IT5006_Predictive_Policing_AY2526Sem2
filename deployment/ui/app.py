@@ -127,10 +127,10 @@ with tab1:
         col5, col6 = st.columns(2)
         with col5:
             d7_avg = st.number_input("7-Day Crimes (Avg) ", value=14.50)
-            arrest_count = st.number_input("Total Arrests (Past 7 Days)", value=14.26)
+            arrest_count = st.number_input("Total Arrests (Past 7 Days)", value=15)
         with col6:
             d7_std = st.number_input("7-Day Crimes (Std Dev)", value=3.84)
-            domestic_count = st.number_input("Domestic-Related Crimes (Past 7 Days)", value=17.96)
+            domestic_count = st.number_input("Domestic-Related Crimes (Past 7 Days)", value=18)
 
         # Row 3: 
         st.caption("Long-term Aggregates")
@@ -151,12 +151,12 @@ with tab1:
             "primary_type": primary_type,
             "latitude": st.session_state.lat,
             "longitude": st.session_state.lng,
-            "d1_count": d1_count,
-            "d7_count": d7_count,
+            "d1_count": int(d1_count),
+            "d7_count": int(d7_count),
             "d7_avg": d7_avg,
             "d7_std": d7_std,
-            "arrest_count": arrest_count,
-            "domestic_count": domestic_count,
+            "arrest_count": int(arrest_count),
+            "domestic_count": int(domestic_count),
             "d30_avg": d30_avg,
             "d30_std": d30_std
         }
