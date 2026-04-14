@@ -167,12 +167,19 @@ with tab1:
                 response.raise_for_status()
                 result = response.json()
 
-                enriched_result = result.copy()
-                enriched_result["lat"] = st.session_state.lat
-                enriched_result["lng"] = st.session_state.lng
-                enriched_result["date"] = dt_combined
-                enriched_result["primary_type"] = primary_type
-                enriched_result["raw_response"] = result
+                # Add Priority for Actionability
+                def get_priority(prob):
+                    # Adjusted based on XGBoost probabilities distribution.
+                    # 75th percentile: 0.15360009670257568, 90th percentile: 0.9952225685119629
+                    if prob > 0.90: return "🔴 HIGH"
+                    if prob > 0.20: return "🟡 MED"
+                    return "🟢 LOW"
+                
+                enriched_result = {
+                    "input": payload,
+                    "predictions": result,
+                    "priority": get_priority(result["xgboost_probability"])
+                }
 
                 st.session_state.api_results.append(enriched_result)
                 
@@ -182,7 +189,8 @@ with tab1:
                 st.error(f"Connection Error: {e}")
     
     if st.session_state.api_results:
-        result = st.session_state.api_results[-1]
+        payload = st.session_state.api_results[-1]["input"]
+        result = st.session_state.api_results[-1]["predictions"]
 
         # 1. MODEL PREDICTIONS IN COLUMNS
         st.write("#### Model Probabilities")
@@ -232,8 +240,8 @@ with tab1:
         icon = "exclamation-triangle" if result['xgboost_prediction'] == 1 else "check"
 
         folium.Marker(
-            [result['lat'], result['lng']],
-            popup=f"<b>{result['primary_type']}</b><br>Risk: {result['xgboost_probability']:.1%}",
+            [payload['latitude'], payload['longitude']],
+            popup=f"<b>{payload['primary_type']}</b><br>Risk: {result['xgboost_probability']:.1%}",
             icon=folium.Icon(color=color, icon=icon, prefix='fa')
         ).add_to(m_result)
 
@@ -245,36 +253,47 @@ with tab1:
 
         if st.session_state.api_results:
             # 1. Convert to DataFrame
-            df = pd.DataFrame(st.session_state.api_results)
+            df = pd.json_normalize(st.session_state.api_results)
 
             # 2. Create the Strategic View
             history_view = pd.DataFrame({
-                "Time": pd.to_datetime(df["date"]).dt.strftime('%b %d, %H:%M'),
-                "Location": df.apply(lambda x: f"{x['lat']:.4f}, {x['lng']:.4f}", axis=1),
-                "Type": df["primary_type"],
-                "Risk Score": df["xgboost_probability"].apply(lambda x: f"{x:.1%}"),
-                "Verdict": df["verdict"]
+                "ID": df.get("predictions.request_id", "N/A"),
+                "Time": pd.to_datetime(df["input.date"]).dt.strftime('%b %d, %H:%M'),
+                "Location": df.apply(lambda x: f"{x['input.latitude']:.4f}, {x['input.longitude']:.4f}", axis=1),
+                "Type": df["input.primary_type"],
+                "Risk Score": df["predictions.xgboost_probability"].apply(lambda x: f"{x:.1%}"),
+                "Verdict": df["predictions.verdict"],
+                "Priority": df["priority"]
             })
 
-            # 3. Add a Priority Column for Actionability
-            def get_priority(prob):
-                if prob > 0.75: return "🔴 HIGH"
-                if prob > 0.50: return "🟡 MED"
-                return "🟢 LOW"
-            
-            history_view["Priority"] = df["xgboost_probability"].apply(get_priority)
-
-            # 4. Display (Newest first)
+            # 3. Display (Newest first)
             st.dataframe(
                 history_view.iloc[::-1], 
                 width="stretch",
                 hide_index=True
             )
             
-            # Optional: Add a button to clear history
-            if st.button("Clear History"):
-                st.session_state.api_results = []
-                st.rerun()
+            col1, col2 = st.columns([1, 1])
+
+            with col1:
+                # Export Full Audit Log
+                # Prepare the CSV
+                csv_data = df.to_csv(index=False).encode('utf-8')
+                
+                st.download_button(
+                    label="📥 Export Full Audit Log (CSV)",
+                    data=csv_data,
+                    file_name=f"crime_audit_log_{datetime.now().strftime('%Y%m%d')}.csv",
+                    mime="text/csv",
+                )
+
+            with col2:                 
+                # Add a button to clear history
+                if st.button("Clear History"):
+                    st.session_state.api_results = []
+                    st.rerun()
+
+
         else:
             st.info("No predictions generated yet.")
 
@@ -282,7 +301,7 @@ with tab1:
 
         # 3. JSON IN A HIDDEN DRAWER
         with st.expander("🔍 View Raw API Response (JSON)"):
-            st.json(result["raw_response"])
+            st.json(result)
             st.write(f"**Request ID:** {result.get('request_id')}")
             st.write(f"**Processed at:** {result.get('timestamp')}")
         
