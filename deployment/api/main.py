@@ -102,7 +102,7 @@ class CrimePredictionInput(BaseModel):
                 "latitude": 41.8781,
                 "longitude": -87.6298,
                 "d1_count": 15,
-                "d1_count": 15,
+                "d7_count": 15,
                 "d7_avg": 14.50,
                 "d7_std": 3.84,
                 "arrest_count": 14.26,
