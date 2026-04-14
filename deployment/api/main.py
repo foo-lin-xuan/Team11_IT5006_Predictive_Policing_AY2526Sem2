@@ -81,6 +81,7 @@ except Exception as e:
 # REQUEST/RESPONSE MODELS
 # ============================================================
 class CrimePredictionInput(BaseModel):
+
     date: datetime = Field(default_factory=datetime.now)                         
     primary_type: str                          
     latitude: float              
@@ -89,8 +90,8 @@ class CrimePredictionInput(BaseModel):
     d7_count: int = 15                      # 7 days prior crime count
     d7_avg: float = 14.50                   # Past 7-day crime count avg
     d7_std: float = 3.84                    # Past 7-day crime count std dev
-    arrest_count: float = 14.26             # Past 7-day total arrest count
-    domestic_count: float = 17.96           # Past 7-day total domestic-related crime count
+    arrest_count: int = 15                  # Past 7-day total arrest count
+    domestic_count: int = 18                # Past 7-day total domestic-related crime count
     d30_avg: float = 14.55                  # Past 30-day crime count avg
     d30_std: float = 4.09                   # Past 30-day crime count std dev
     
@@ -105,8 +106,8 @@ class CrimePredictionInput(BaseModel):
                 "d7_count": 15,
                 "d7_avg": 14.50,
                 "d7_std": 3.84,
-                "arrest_count": 14.26,
-                "domestic_count": 17.96,
+                "arrest_count": 15,
+                "domestic_count": 18,
                 "d30_avg": 14.55,
                 "d30_std": 4.09
             }
