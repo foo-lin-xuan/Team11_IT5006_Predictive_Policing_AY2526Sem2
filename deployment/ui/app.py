@@ -91,7 +91,7 @@ with tab1:
             "Latitude", 
             value=st.session_state.lat, 
             format="%.6f",
-            step=1.0, 
+            step=0.1, 
             key="lat_box", 
         )
         
@@ -99,7 +99,7 @@ with tab1:
             "Longitude", 
             value=st.session_state.lng, 
             format="%.6f",
-            step=1.0, 
+            step=0.1, 
             key="lng_box", 
         )
         
