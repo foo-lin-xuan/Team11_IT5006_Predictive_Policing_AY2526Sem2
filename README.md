@@ -35,6 +35,7 @@ project-root
 └────notebooks      # All Jupyter notebooks (Milestone 1,2,3)
 │    ├───requirements.txt
 │    ├───code notebooks for EDA, project milestone 2 and milestone 3
+|    |————data in zip files
 ```
 
 ## Application Deployment
