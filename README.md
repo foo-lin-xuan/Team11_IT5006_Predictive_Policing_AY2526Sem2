@@ -33,7 +33,8 @@ project-root
 │    ├───api        # API Web Service (Milestone 3)
 │    └───ui         # Application Frontend (Milestone 3)
 └────notebooks      # All Jupyter notebooks (Milestone 1,2,3)
-
+│    ├───requirements.txt
+│    ├───code notebooks for EDA, project milestone 2 and milestone 3
 ```
 
 ## Application Deployment
