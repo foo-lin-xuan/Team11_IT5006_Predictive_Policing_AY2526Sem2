@@ -25,6 +25,17 @@ The goal is to identify high-risk spatial-temporal crime units that can support 
 - Raw dataset size: 1,952,048 records
 - Aggregated dataset size after preprocessing: 1,478,884 records
 
+## Folder Structure
+```
+project-root
+├───dashboard       # EDA Interactive Dashboard (Milestone 1)
+├───deployment           
+│    ├───api        # API Web Service (Milestone 3)
+│    └───ui         # Application Frontend (Milestone 3)
+└────notebooks      # All Jupyter notebooks (Milestone 1,2,3)
+
+```
+
 ## Application Deployment
 **Live URL**: [https://crime-risk-prediction.streamlit.app/](https://crime-risk-prediction.streamlit.app/)
 
