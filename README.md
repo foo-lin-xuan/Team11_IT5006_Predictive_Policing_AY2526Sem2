@@ -25,38 +25,12 @@ The goal is to identify high-risk spatial-temporal crime units that can support 
 - Raw dataset size: 1,952,048 records
 - Aggregated dataset size after preprocessing: 1,478,884 records
 
-## Models Deployed
+## Application Deployment
+**Live URL**: [https://crime-risk-prediction.streamlit.app/](https://crime-risk-prediction.streamlit.app/)
+
+### Models Deployed
 - Logistic Regression as baseline
 - Random Forest
 - XGBoost as primary model
 - Weighted Soft-Voting Ensemble (RF + XGBoost) 
 
-## Milestone 3 Project Code
-```
-project-root
-│   Dockerfile
-│   README.md
-├───deployment           
-│    │   IT5006_Milestone3_Build_Pipelines.ipynb  
-│    ├───api        # Web Service Deployment
-│    └───ui         # Prediction UI
-└────...
-
-```
-
-## Web Service Deployment
-
-Deploy FastAPI service on [Hugging Face Spaces](https://huggingface.co/):
-<!-- 
-Note to include:
-- Dockerfile
-- YAML header in README.md 
--->
-
-API URL: [https://foo-lin-xuan-crime-risk-prediction.hf.space/docs](https://foo-lin-xuan-crime-risk-prediction.hf.space/docs)
-
-## Prediction UI
-
-Deploy Streamlit application on [Streamlit Community Cloud](https://share.streamlit.io/).
-
-Application URL: [https://crime-risk-prediction.streamlit.app/](https://crime-risk-prediction.streamlit.app/)
